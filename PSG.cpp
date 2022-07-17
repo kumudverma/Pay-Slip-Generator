@@ -255,7 +255,6 @@ int search(int no,permanent_employee *per){                           //func. de
     ifstream infile;
     permanent_employee p;
     char ch;
-
     infile.open("per_empf");                                          //open file in read mode
     if(!infile.fail())                                                //checking if file exists
     {
@@ -346,7 +345,7 @@ void generate_pay_slip(permanent_employee per){                        //fun. to
     outfile.close();
 }
 
-void generate_pay_slip(contractual_employee per){                        //fun. to generate pay slips  of permanent employees
+void generate_pay_slip(contractual_employee per){                        //fun. to generate pay slips  of contractual employees
     int no;
     char fl_name[8],num[8],emp[8],c;
 
@@ -434,18 +433,17 @@ void compute_OT(){                                                       //func.
     cout<<"\n\nComputation of Overtime Due for Contractual Employee in Progress.......";
     while(!(infile.eof()))
     {
-        cout<<" k  "<<infile.eof()<<endl;
-        
+        infile>>c.emp_no;
         infile.ignore(1000,'\n');
         infile.getline(c.emp_name,40);
         infile.getline(c.emp_add,80);
         infile.getline(c.emp_desg,20);
         infile.getline(c.emp_dept,20);
-        infile>>c.gross>>c.ptax>>c.itax>>c.net;
-        cout<<c.emp_name<<" "<<endl;
+        infile>>c.emp_type>>c.gross>>c.ptax>>c.itax>>c.net;
+        // cout<<c.emp_no<<" "<<c.emp_name<<" "<<c.emp_add<<" "<<c.emp_desg<<" "<<c.emp_dept<<endl;
         if(infile.eof())                                                 //need to check end of flag  else last employee details will be read twice
                 break;
-        cout<<"\nEnter the overtime hours for emp no.  "<<p.emp_no<<" : ";
+        cout<<"\nEnter the overtime hours for emp no.  "<<c.emp_no<<" : ";
         cin>>hours;
         cin.ignore();
         c.net=c.net+(hours*400);                                            //Over time rate is 400 per hour
@@ -470,10 +468,10 @@ void compute_OT(){                                                       //func.
     cout<<"\nThe Over time Dues for the employee are as following :\n\n";
     infile.open("per_payroll");
     cout.setf(ios::left,ios::adjustfield);      
-    cout.width(10);
-    cout<<"Emp No.";                            //display output in formatted fashion
     cout.width(40);
-    cout<<"Emp. Name";
+    cout<<"Emp. Name";                           //display output in formatted fashion
+    cout.width(10);
+    cout<<"Emp. Id";
     cout.setf(ios::left,ios::adjustfield);
     cout.width(10);
     cout<<"Overtime Dues"<<"\n\n";
@@ -488,11 +486,11 @@ void compute_OT(){                                                       //func.
         if(infile.eof())                                                 //need to check end of flag  else last employee details will be read twice
                 break;
         cout.setf(ios::left,ios::adjustfield);
-        cout.width(10);
-        cout<<p.emp_no;
-        cout.setf(ios::left,ios::adjustfield);
         cout.width(40);
         cout<<p.emp_name;
+        cout.setf(ios::left,ios::adjustfield);
+        cout.width(10);
+        cout<<p.emp_no;
         cout.width(10);
         cout<<hours<<"\n";
     }
@@ -509,11 +507,11 @@ void compute_OT(){                                                       //func.
         if(infile.eof())                                                 //need to check end of flag  else last employee details will be read twice
                 break;
         cout.setf(ios::left,ios::adjustfield);
-        cout.width(10);
-        cout<<p.emp_no;
-        cout.setf(ios::left,ios::adjustfield);
         cout.width(40);
-        cout<<p.emp_name;
+        cout<<c.emp_name;
+        cout.setf(ios::left,ios::adjustfield);
+        cout.width(10);
+        cout<<c.emp_no;
         cout.width(10);
         cout<<hours<<"\n";
     }
@@ -607,22 +605,24 @@ int32_t main()
     // freopen("output.txt","w",stdout);
     // #endif
     int choice ,emp_type,no;
-    int da,hra,ma,ptax;
+    int da,hra,ma,ptax,index;
     permanent_employee per_person;
     contractual_employee con_person;
+    
     while(1)
     {
-        //system("CLS");
-        cout<<"\n:::::::::::::MENU:::::::::::::::";
-        cout<<"\n1. New Employee";
+        // system("CLS");
+        cout<<"\n\n\n:::::::::::::MENU:::::::::::::::";
+        cout<<"\n1. Add New Employee";
         cout<<"\n2. Generate Pay Slip";
         cout<<"\n3. Set Dearness Allowance rate";
         cout<<"\n4. Set HRA rate";
         cout<<"\n5. Set Professional tax";
-        cout<<"\n6. Set Mesical Alloeance rate";
-        cout<<"\n7. Display Details of Employee";
-        cout<<"\n8. Compute Overtime Dues For Employees";
-        cout<<"\n9. Exit";
+        cout<<"\n6. Set Medical Alloeance rate";
+        cout<<"\n7. Display Details of 1 Employee by emp_no";
+        cout<<"\n8. Display Details of all Employees";
+        cout<<"\n9. Compute Overtime Dues For Employees";
+        cout<<"\n10. Exit";
         cout<<"\n\nEnter Your Choice:: ";
         cin>>choice;
         fflush(stdin);
@@ -651,38 +651,20 @@ int32_t main()
             }
             break;
         case 2:                                                             //Generate Pay Slip
-            cout<<"\nEnter rhe employee no.: ";
+            cout<<"\nEnter the employee no.: ";
             cin>>no;
             cin.ignore();
-            cout<<"\nEnter the employee type:  ";
-            cout<<"\n1. Permanent Employee";
-            cout<<"\n2. Contractual Employee";
-            cin>>emp_type;
-            cin.ignore();
-            switch (emp_type)
+            if((search(no,&per_person))!=0)
             {
-            case 1:                                                       //permanent employee
-                if((search(no,&per_person))==0){
-                    cout<<"\n\nInvalid Employee number";
-                }
-                else
-                {
-                    generate_pay_slip(per_person);
-                }
-                break;
-            case 2:                                                       //Contractual Type
-                if((search(no,&con_person))==0){
-                    cout<<"\n\nInvalid Employee number";
-                }
-                else
-                {
-                    generate_pay_slip(con_person);
-                }
-                break;
-            default:
-            cout<<"\n\n Wrong Type";
-                break;
+                generate_pay_slip(per_person);
             }
+            else if((search(no,&con_person))!=0){
+                generate_pay_slip(con_person);
+            }
+            else{
+                cout<<"\n\nInvalid Employee number";
+            }
+            break;
             case 3:                                                       //set DA rate
             cout<<"\n\nEnter new Dearness Allowance rate:   ";
             cin>>da;
@@ -708,43 +690,44 @@ int32_t main()
             cout<<"\n\nEnter Employee no. : ";
             cin>>no;
             cin.ignore();
-            cout<<"\nEnter the employee type:  ";
-            cout<<"\n1. Permanent Employee";
-            cout<<"\n2. Contractual Employee";
-            cin>>emp_type;
-            cin.ignore();
-            switch (emp_type)
+            if((search(no,&per_person))!=0)
             {
-            case 1:                                                       //permanent employee
-                if((search(no,&per_person))==0){
-                    cout<<"\n\nInvalid Employee number";
-                }
-                else
-                {
-                    per_person.displaydata();
-                }
-                break;
-            case 2:                                                       //Contractual Type
-                if((search(no,&con_person))==0){
-                    cout<<"\n\nInvalid Employee number";
-                }
-                else
-                {
-                    con_person.displaydata();
-                }
-                break;
-            default:
-            cout<<"\n\n Wrong Type";
-                break;
+                per_person.displaydata();
+            }
+            else if((search(no,&con_person))!=0){
+                con_person.displaydata();
+            }
+            else{
+                cout<<"\n\nInvalid Employee number";
             }
             break;
-            case 8:                                                      //Compute Overtime Dues for employee
-            compute_OT();
-            break;
-            case 9:                                                       //Exit System
-            exit(0);
-            default:
-            cout<<"\n\nWrong Choice";
+            case 8:
+                index = 1;
+                while(1){
+                    if((search(index,&per_person))!=0)
+                    {
+                        per_person.displaydata();
+                    }
+                    else if((search(index,&con_person))!=0){
+                        con_person.displaydata();
+                    }
+                    else{
+                        cout<<endl;
+                        cout<<"\nTotal "<<index-1<<" Employees in DataBase\n";
+                        break;
+                    }
+                    cout<<endl;
+                    index++;
+                }
+                
+                break;
+            case 9:                                                      //Compute Overtime Dues for employee
+                compute_OT();
+                break;
+            case 10:                                                       //Exit System
+                exit(0);
+                default:
+                cout<<"\n\nWrong Choice";
         }                                                                   //End of switch case for main menu
     }                                                                      // end of while loop
     return 0;
